@@ -81,6 +81,7 @@ public class FriendsUser extends User {
         }
         addOnlineFriend(friend);
         friend.addOnlineFriend(this);
+        ActionDispatcher.getInstance().dispatchAction(Action.FRIEND_ADD, this, friend);
     }
 
     @Override
@@ -90,6 +91,7 @@ public class FriendsUser extends User {
         }
         removeOnlineFriend(friend);
         friend.removeOnlineFriend(this);
+        ActionDispatcher.getInstance().dispatchAction(Action.FRIEND_REMOVE, this, friend);
     }
 
     @Override
@@ -97,6 +99,7 @@ public class FriendsUser extends User {
         try (Jedis jedis = pool.getResource()) {
             jedis.sadd(onlineSet, friend.getUuid().toString());
         }
+        ActionDispatcher.getInstance().dispatchAction(Action.ONLINE_ADD, this, friend);
     }
 
     @Override
@@ -104,5 +107,6 @@ public class FriendsUser extends User {
         try (Jedis jedis = pool.getResource()) {
             jedis.srem(onlineSet, friend.getUuid().toString());
         }
+        ActionDispatcher.getInstance().dispatchAction(Action.ONLINE_REMOVE, this, friend);
     }
 }
