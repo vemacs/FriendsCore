@@ -34,4 +34,5 @@ public abstract class User {
 
     public abstract void removeOnlineFriend(User user);
 
+    public abstract boolean hasFriend(User user);
 }

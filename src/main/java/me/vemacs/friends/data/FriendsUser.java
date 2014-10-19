@@ -11,6 +11,7 @@ import java.util.UUID;
 public class FriendsUser extends User {
     public FriendsUser(UUID uuid) {
         super(uuid);
+        init();
     }
 
     private FriendsDatabase db = FriendsDatabase.getInstance();
@@ -77,6 +78,7 @@ public class FriendsUser extends User {
 
     @Override
     public void addFriend(User friend) {
+        if (hasFriend(friend)) return;
         try (Jedis jedis = FriendsDatabase.getResource()) {
             jedis.sadd(friendsSet, friend.getUuid().toString());
         }
@@ -87,6 +89,7 @@ public class FriendsUser extends User {
 
     @Override
     public void removeFriend(User friend) {
+        if (!hasFriend(friend)) return;
         try (Jedis jedis = FriendsDatabase.getResource()) {
             jedis.srem(friendsSet, friend.getUuid().toString());
         }
@@ -109,5 +112,12 @@ public class FriendsUser extends User {
             jedis.srem(onlineSet, friend.getUuid().toString());
         }
         ActionDispatcher.getInstance().dispatchAction(Action.ONLINE_REMOVE, this, friend);
+    }
+
+    @Override
+    public boolean hasFriend(User friend) {
+        try (Jedis jedis = FriendsDatabase.getResource()) {
+            return jedis.sismember(friendsSet, friend.getUuid().toString());
+        }
     }
 }
