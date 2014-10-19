@@ -1,6 +1,7 @@
 package me.vemacs.friends.data;
 
 import lombok.Getter;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
@@ -22,7 +23,6 @@ public class FriendsDatabase {
         return instance;
     }
 
-    @Getter
     private JedisPool pool;
 
     public void init(String ip, int port) {
@@ -39,5 +39,9 @@ public class FriendsDatabase {
 
     public void shutdown() {
         pool.destroy();
+    }
+
+    public static Jedis getResource() {
+        return instance.pool.getResource();
     }
 }

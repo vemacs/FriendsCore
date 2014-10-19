@@ -64,7 +64,7 @@ public class ActionDispatcher {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    try (Jedis jedis = FriendsDatabase.getInstance().getPool().getResource()) {
+                    try (Jedis jedis = FriendsDatabase.getResource()) {
                         jedis.subscribe(pubSubHandler, channelPrefix  + action.name().toLowerCase());
                     }
                 }
@@ -76,7 +76,7 @@ public class ActionDispatcher {
     private Map<Action, List<ActionHandler>> registeredHandlers = new ConcurrentHashMap<>();
 
     public void dispatchAction(Action action, User recipient, User subject) {
-        try (Jedis jedis = FriendsDatabase.getInstance().getPool().getResource()) {
+        try (Jedis jedis = FriendsDatabase.getResource()) {
             jedis.publish(channelPrefix + action.name().toLowerCase(),
                     recipient.getUuid().toString() + "," + subject.getUuid().toString());
         }

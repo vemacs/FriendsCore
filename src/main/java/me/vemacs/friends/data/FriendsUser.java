@@ -15,8 +15,6 @@ public class FriendsUser extends User {
     }
 
     private FriendsDatabase db = FriendsDatabase.getInstance();
-    private JedisPool pool = FriendsDatabase.getInstance().getPool();
-
     private final String prefix = FriendsDatabase.getPrefix() + "user.";
 
     private String friendsSet;
@@ -53,7 +51,7 @@ public class FriendsUser extends User {
             friend.removeOnlineFriend(this);
             ActionDispatcher.getInstance().dispatchAction(Action.LOGOUT, friend, this);
         }
-        try (Jedis jedis = pool.getResource()) {
+        try (Jedis jedis = FriendsDatabase.getResource()) {
             jedis.del(onlineSet);
         }
     }
@@ -61,7 +59,7 @@ public class FriendsUser extends User {
     @Override
     public Set<User> getFriends() {
         Set<User> friends = new HashSet<>();
-        try (Jedis jedis = pool.getResource()) {
+        try (Jedis jedis = FriendsDatabase.getResource()) {
             for (String str : jedis.smembers(friendsSet))
                 friends.add(new FriendsUser(UUID.fromString(str)));
         }
@@ -71,7 +69,7 @@ public class FriendsUser extends User {
     @Override
     public Set<User> getOnlineFriends() {
         Set<User> friends = new HashSet<>();
-        try (Jedis jedis = pool.getResource()) {
+        try (Jedis jedis = FriendsDatabase.getResource()) {
             for (String str : jedis.smembers(onlineSet))
                 friends.add(new FriendsUser(UUID.fromString(str)));
         }
@@ -80,7 +78,7 @@ public class FriendsUser extends User {
 
     @Override
     public void addFriend(User friend) {
-        try (Jedis jedis = pool.getResource()) {
+        try (Jedis jedis = FriendsDatabase.getResource()) {
             jedis.sadd(friendsSet, friend.getUuid().toString());
         }
         addOnlineFriend(friend);
@@ -90,7 +88,7 @@ public class FriendsUser extends User {
 
     @Override
     public void removeFriend(User friend) {
-        try (Jedis jedis = pool.getResource()) {
+        try (Jedis jedis = FriendsDatabase.getResource()) {
             jedis.srem(friendsSet, friend.getUuid().toString());
         }
         removeOnlineFriend(friend);
@@ -100,7 +98,7 @@ public class FriendsUser extends User {
 
     @Override
     public void addOnlineFriend(User friend) {
-        try (Jedis jedis = pool.getResource()) {
+        try (Jedis jedis = FriendsDatabase.getResource()) {
             jedis.sadd(onlineSet, friend.getUuid().toString());
         }
         ActionDispatcher.getInstance().dispatchAction(Action.ONLINE_ADD, this, friend);
@@ -108,7 +106,7 @@ public class FriendsUser extends User {
 
     @Override
     public void removeOnlineFriend(User friend) {
-        try (Jedis jedis = pool.getResource()) {
+        try (Jedis jedis = FriendsDatabase.getResource()) {
             jedis.srem(onlineSet, friend.getUuid().toString());
         }
         ActionDispatcher.getInstance().dispatchAction(Action.ONLINE_REMOVE, this, friend);
