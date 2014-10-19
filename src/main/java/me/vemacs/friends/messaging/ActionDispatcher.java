@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ActionDispatcher {
     private static ActionDispatcher instance;
+
     protected ActionDispatcher() {
 
     }
@@ -65,7 +66,7 @@ public class ActionDispatcher {
                 @Override
                 public void run() {
                     try (Jedis jedis = FriendsDatabase.getResource()) {
-                        jedis.subscribe(pubSubHandler, channelPrefix  + action.name().toLowerCase());
+                        jedis.subscribe(pubSubHandler, channelPrefix + action.name().toLowerCase());
                     }
                 }
             }).start();

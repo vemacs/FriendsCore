@@ -13,6 +13,7 @@ public class FriendsDatabase {
 
     // Singleton stuff
     private static FriendsDatabase instance;
+
     protected FriendsDatabase() {
 
     }

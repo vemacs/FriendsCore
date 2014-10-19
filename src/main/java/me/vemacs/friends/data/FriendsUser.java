@@ -3,7 +3,6 @@ package me.vemacs.friends.data;
 import me.vemacs.friends.messaging.Action;
 import me.vemacs.friends.messaging.ActionDispatcher;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 
 import java.util.HashSet;
 import java.util.Set;
