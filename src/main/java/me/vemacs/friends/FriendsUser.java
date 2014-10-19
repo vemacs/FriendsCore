@@ -41,6 +41,7 @@ public class FriendsUser extends User {
         for (User friend : intersection) {
             addOnlineFriend(friend);
             friend.addOnlineFriend(this);
+            ActionDispatcher.getInstance().dispatchAction(Action.LOGIN, friend, this);
         }
     }
 
@@ -48,6 +49,7 @@ public class FriendsUser extends User {
     public void logout() {
         for (User friend : getOnlineFriends()) {
             friend.removeOnlineFriend(this);
+            ActionDispatcher.getInstance().dispatchAction(Action.LOGOUT, friend, this);
         }
         try (Jedis jedis = pool.getResource()) {
             jedis.del(onlineSet);
