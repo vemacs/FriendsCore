@@ -80,8 +80,8 @@ public class FriendsUser extends User {
         try (Jedis jedis = FriendsDatabase.getResource()) {
             jedis.sadd(friendsSet, friend.getUuid().toString());
         }
+        friend.addFriend(this);
         addOnlineFriend(friend);
-        friend.addOnlineFriend(this);
         ActionDispatcher.getInstance().dispatchAction(Action.FRIEND_ADD, this, friend);
     }
 
@@ -90,8 +90,8 @@ public class FriendsUser extends User {
         try (Jedis jedis = FriendsDatabase.getResource()) {
             jedis.srem(friendsSet, friend.getUuid().toString());
         }
+        friend.removeFriend(this);
         removeOnlineFriend(friend);
-        friend.removeOnlineFriend(this);
         ActionDispatcher.getInstance().dispatchAction(Action.FRIEND_REMOVE, this, friend);
     }
 
