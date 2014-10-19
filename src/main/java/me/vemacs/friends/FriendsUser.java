@@ -40,6 +40,7 @@ public class FriendsUser extends User {
         intersection.retainAll(db.getOnlineUsers());
         for (User friend : intersection) {
             addOnlineFriend(friend);
+            friend.addOnlineFriend(this);
         }
     }
 
@@ -96,7 +97,6 @@ public class FriendsUser extends User {
         try (Jedis jedis = pool.getResource()) {
             jedis.sadd(onlineSet, friend.getUuid().toString());
         }
-        friend.addOnlineFriend(this);
     }
 
     @Override
@@ -104,6 +104,5 @@ public class FriendsUser extends User {
         try (Jedis jedis = pool.getResource()) {
             jedis.srem(onlineSet, friend.getUuid().toString());
         }
-        friend.removeOnlineFriend(this);
     }
 }
