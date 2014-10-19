@@ -1,4 +1,4 @@
-package me.vemacs.friends;
+package me.vemacs.friends.messaging;
 
 public enum Action {
     LOGIN,

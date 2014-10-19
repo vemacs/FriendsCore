@@ -1,4 +1,6 @@
-package me.vemacs.friends;
+package me.vemacs.friends.messaging;
+
+import me.vemacs.friends.data.User;
 
 public interface ActionHandler {
     public Action getAction();

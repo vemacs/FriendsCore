@@ -1,4 +1,4 @@
-package me.vemacs.friends;
+package me.vemacs.friends.data;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

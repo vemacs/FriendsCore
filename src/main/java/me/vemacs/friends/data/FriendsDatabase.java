@@ -1,4 +1,4 @@
-package me.vemacs.friends;
+package me.vemacs.friends.data;
 
 import lombok.Getter;
 import redis.clients.jedis.JedisPool;

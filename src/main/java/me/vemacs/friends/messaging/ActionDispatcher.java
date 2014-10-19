@@ -1,6 +1,9 @@
-package me.vemacs.friends;
+package me.vemacs.friends.messaging;
 
 import lombok.Getter;
+import me.vemacs.friends.data.FriendsDatabase;
+import me.vemacs.friends.data.FriendsUser;
+import me.vemacs.friends.data.User;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 
