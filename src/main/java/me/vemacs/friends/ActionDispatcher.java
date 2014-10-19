@@ -2,6 +2,7 @@ package me.vemacs.friends;
 
 import lombok.Getter;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPubSub;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,50 @@ public class ActionDispatcher {
 
     @Getter
     private static final String channelPrefix = "fl-";
+
+    public void init() {
+        final JedisPubSub pubSubHandler = new JedisPubSub() {
+            @Override
+            public void onMessage(String channel, String message) {
+                handle(channel, message);
+            }
+
+            @Override
+            public void onPMessage(String s, String s2, String s3) {
+
+            }
+
+            @Override
+            public void onSubscribe(String s, int i) {
+
+            }
+
+            @Override
+            public void onUnsubscribe(String s, int i) {
+
+            }
+
+            @Override
+            public void onPUnsubscribe(String s, int i) {
+
+            }
+
+            @Override
+            public void onPSubscribe(String s, int i) {
+
+            }
+        };
+        for (final Action action : Action.values()) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try (Jedis jedis = FriendsDatabase.getInstance().getPool().getResource()) {
+                        jedis.subscribe(pubSubHandler, channelPrefix  + action.name().toLowerCase());
+                    }
+                }
+            }).start();
+        }
+    }
 
     // hurrdurr no multimap
     private Map<Action, List<ActionHandler>> registeredHandlers = new ConcurrentHashMap<>();
