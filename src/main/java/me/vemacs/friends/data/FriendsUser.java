@@ -80,9 +80,8 @@ public class FriendsUser extends User {
 
     @Override
     public void addFriend(User friend) {
-        if (hasFriend(friend)) return;
         try (Jedis jedis = FriendsDatabase.getResource()) {
-            jedis.sadd(friendsSet, friend.getUuid().toString());
+            if (jedis.sadd(friendsSet, friend.getUuid().toString()) == 0) return;
         }
         friend.addFriend(this);
         addOnlineFriend(friend);
@@ -93,7 +92,7 @@ public class FriendsUser extends User {
     public void removeFriend(User friend) {
         if (!hasFriend(friend)) return;
         try (Jedis jedis = FriendsDatabase.getResource()) {
-            jedis.srem(friendsSet, friend.getUuid().toString());
+            if (jedis.srem(friendsSet, friend.getUuid().toString()) == 0) return;
         }
         friend.removeFriend(this);
         removeOnlineFriend(friend);
