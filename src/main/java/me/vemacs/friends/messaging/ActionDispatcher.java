@@ -65,9 +65,7 @@ public class ActionDispatcher {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    try (Jedis jedis = FriendsDatabase.getResource()) {
-                        jedis.subscribe(pubSubHandler, channelPrefix + action.name().toLowerCase());
-                    }
+                    FriendsDatabase.getResource().subscribe(pubSubHandler, channelPrefix + action.name().toLowerCase());
                 }
             }).start();
         }
