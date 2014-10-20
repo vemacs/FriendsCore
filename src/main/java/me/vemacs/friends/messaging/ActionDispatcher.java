@@ -84,8 +84,9 @@ public class ActionDispatcher {
     public void handle(String channel, String message) {
         Action action = Action.valueOf(channel.substring(channelPrefix.length()).toUpperCase());
         String[] parts = message.split(",");
-        for (ActionHandler handler : registeredHandlers.get(action))
-            handler.handle(new FriendsUser(UUID.fromString(parts[0])), new FriendsUser(UUID.fromString(parts[1])));
+        if (registeredHandlers.containsKey(action))
+            for (ActionHandler handler : registeredHandlers.get(action))
+                handler.handle(new FriendsUser(UUID.fromString(parts[0])), new FriendsUser(UUID.fromString(parts[1])));
     }
 
     public void register(ActionHandler handler) {
