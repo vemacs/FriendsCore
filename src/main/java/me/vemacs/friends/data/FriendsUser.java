@@ -36,6 +36,7 @@ public class FriendsUser extends User {
 
     @Override
     public void login() {
+        db.addOnlineUser(this);
         Set<User> intersection = new HashSet<>(getFriends());
         intersection.retainAll(db.getOnlineUsers());
         for (User friend : intersection) {
@@ -47,6 +48,7 @@ public class FriendsUser extends User {
 
     @Override
     public void logout() {
+        db.removeOnlineUser(this);
         for (User friend : getOnlineFriends()) {
             friend.removeOnlineFriend(this);
             ActionDispatcher.getInstance().dispatchAction(Action.LOGOUT, friend, this);

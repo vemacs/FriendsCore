@@ -5,7 +5,9 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
+import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 public class FriendsDatabase {
     @Getter
@@ -35,7 +37,25 @@ public class FriendsDatabase {
     }
 
     public Set<User> getOnlineUsers() {
-        return null;
+        try (Jedis jedis = getResource()) {
+            Set<User> temp = new HashSet<>();
+            Set<String> jedisOnline = jedis.smembers(prefix + "currentlyonline");
+            for (String s : jedisOnline)
+                temp.add(new FriendsUser(UUID.fromString(s)));
+            return temp;
+        }
+    }
+
+    public void addOnlineUser(User user) {
+        try (Jedis jedis = getResource()) {
+            jedis.sadd(prefix + "currentlyonline", user.getUuid().toString());
+        }
+    }
+
+    public void removeOnlineUser(User user) {
+        try (Jedis jedis = getResource()) {
+            jedis.srem(prefix + "currentlyonline", user.getUuid().toString());
+        }
     }
 
     public void shutdown() {
