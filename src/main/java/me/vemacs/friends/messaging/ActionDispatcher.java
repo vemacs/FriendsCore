@@ -61,14 +61,16 @@ public class ActionDispatcher {
 
             }
         };
-        for (final Action action : Action.values()) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    FriendsDatabase.getResource().subscribe(pubSubHandler, channelPrefix + action.name().toLowerCase());
-                }
-            }).start();
+        final String[] actionChannels = new String[Action.values().length];
+        for (int i = 0; i < actionChannels.length; i++) {
+            actionChannels[i] = channelPrefix + Action.values()[i].name().toLowerCase();
         }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                FriendsDatabase.getResource().subscribe(pubSubHandler, actionChannels);
+            }
+        }).start();
     }
 
     // hurrdurr no multimap
