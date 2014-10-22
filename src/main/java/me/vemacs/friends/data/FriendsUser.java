@@ -128,6 +128,11 @@ public class FriendsUser implements User {
     }
 
     @Override
+    public boolean isOnline() {
+        return db.isUserOnline(this);
+    }
+
+    @Override
     public UUID getUuid() {
         return uuid;
     }

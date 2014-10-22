@@ -58,6 +58,12 @@ public class FriendsDatabase {
         }
     }
 
+    public boolean isUserOnline(User user) {
+        try (Jedis jedis = getResource()) {
+            return jedis.sismember(prefix + "currentlyonline", user.getUuid().toString());
+        }
+    }
+
     public void shutdown() {
         pool.destroy();
     }

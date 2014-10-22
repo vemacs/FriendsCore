@@ -24,5 +24,7 @@ public interface User {
 
     public abstract boolean hasFriend(User user);
 
+    public abstract boolean isOnline();
+
     public abstract UUID getUuid();
 }
