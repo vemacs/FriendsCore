@@ -1,5 +1,7 @@
 package me.vemacs.friends.data;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import me.vemacs.friends.messaging.Action;
 import me.vemacs.friends.messaging.ActionDispatcher;
 import redis.clients.jedis.Jedis;
@@ -8,9 +10,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-public class FriendsUser extends User {
+@EqualsAndHashCode
+public class FriendsUser implements User {
+    private UUID uuid;
+
     public FriendsUser(UUID uuid) {
-        super(uuid);
+        this.uuid = uuid;
         init();
     }
 
@@ -120,5 +125,10 @@ public class FriendsUser extends User {
         try (Jedis jedis = FriendsDatabase.getResource()) {
             return jedis.sismember(friendsSet, friend.getUuid().toString());
         }
+    }
+
+    @Override
+    public UUID getUuid() {
+        return uuid;
     }
 }
