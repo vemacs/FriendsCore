@@ -44,7 +44,7 @@ public class FriendsUser implements User {
         db.addOnlineUser(this);
         try (Jedis jedis = FriendsDatabase.getResource()) {
             Set<User> intersection = new HashSet<>();
-            Set<String> tmp = jedis.sinter(getFriendsSetName(), FriendsDatabase.getPrefix() +
+            Set<String> tmp = jedis.sinter(friendsSet, FriendsDatabase.getPrefix() +
                     FriendsDatabase.getOnlineKey());
             for (String s : tmp)
                 intersection.add(new FriendsUser(UUID.fromString(s)));
