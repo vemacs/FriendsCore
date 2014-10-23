@@ -12,6 +12,8 @@ import java.util.UUID;
 public class FriendsDatabase {
     @Getter
     private static final String prefix = "friends.";
+    @Getter
+    private static final String onlineKey = "currentlyonline";
 
     // Singleton stuff
     private static FriendsDatabase instance;
@@ -39,7 +41,7 @@ public class FriendsDatabase {
     public Set<User> getOnlineUsers() {
         try (Jedis jedis = getResource()) {
             Set<User> temp = new HashSet<>();
-            Set<String> jedisOnline = jedis.smembers(prefix + "currentlyonline");
+            Set<String> jedisOnline = jedis.smembers(prefix + onlineKey);
             for (String s : jedisOnline)
                 temp.add(new FriendsUser(UUID.fromString(s)));
             return temp;
@@ -48,19 +50,19 @@ public class FriendsDatabase {
 
     public void addOnlineUser(User user) {
         try (Jedis jedis = getResource()) {
-            jedis.sadd(prefix + "currentlyonline", user.getUuid().toString());
+            jedis.sadd(prefix + onlineKey, user.getUuid().toString());
         }
     }
 
     public void removeOnlineUser(User user) {
         try (Jedis jedis = getResource()) {
-            jedis.srem(prefix + "currentlyonline", user.getUuid().toString());
+            jedis.srem(prefix + onlineKey, user.getUuid().toString());
         }
     }
 
     public boolean isUserOnline(User user) {
         try (Jedis jedis = getResource()) {
-            return jedis.sismember(prefix + "currentlyonline", user.getUuid().toString());
+            return jedis.sismember(prefix + onlineKey, user.getUuid().toString());
         }
     }
 

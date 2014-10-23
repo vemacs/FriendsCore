@@ -42,12 +42,17 @@ public class FriendsUser implements User {
     @Override
     public void login() {
         db.addOnlineUser(this);
-        Set<User> intersection = new HashSet<>(getFriends());
-        intersection.retainAll(db.getOnlineUsers());
-        for (User friend : intersection) {
-            addOnlineFriend(friend);
-            friend.addOnlineFriend(this);
-            ActionDispatcher.getInstance().dispatchAction(Action.LOGIN, friend, this);
+        try (Jedis jedis = FriendsDatabase.getResource()) {
+            Set<User> intersection = new HashSet<>();
+            Set<String> tmp = jedis.sinter(getFriendsSetName(), FriendsDatabase.getPrefix() +
+                    FriendsDatabase.getOnlineKey());
+            for (String s : tmp)
+                intersection.add(new FriendsUser(UUID.fromString(s)));
+            for (User friend : intersection) {
+                addOnlineFriend(friend);
+                friend.addOnlineFriend(this);
+                ActionDispatcher.getInstance().dispatchAction(Action.LOGIN, friend, this);
+            }
         }
     }
 
