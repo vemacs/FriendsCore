@@ -1,5 +1,6 @@
 package me.vemacs.friends.data;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -10,7 +11,7 @@ public interface User {
 
     public abstract void logout();
 
-    public abstract Set<User> getFriends();
+    public abstract Map<Boolean, User> getFriends();
 
     public abstract Set<User> getOnlineFriends();
 

@@ -74,18 +74,19 @@ public class FriendsUser implements User {
     }
 
     @Override
-    public Set<User> getFriends() {
-        Set<User> friends = new LinkedHashSet<>();
+    public Map<Boolean, User> getFriends() {
+        Map<Boolean, User> friends = new LinkedHashMap<>();
         try (Jedis jedis = FriendsDatabase.getResource()) {
-            friends.addAll(getOnlineFriends());
+            for (User u : getOnlineFriends())
+                friends.put(true, u);
             Map<Long, User> tmpMap = new TreeMap<>(Collections.reverseOrder());
             for (String str : jedis.smembers(friendsSet)) {
                 User tmpUser = new FriendsUser(UUID.fromString(str));
-                if (!friends.contains(tmpUser))
+                if (!friends.containsValue(tmpUser))
                     tmpMap.put(tmpUser.getLastSeen(), tmpUser);
             }
             for (User u : tmpMap.values())
-                friends.add(u);
+                friends.put(false, u);
         }
         return friends;
     }
