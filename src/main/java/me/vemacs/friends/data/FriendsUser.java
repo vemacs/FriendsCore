@@ -23,13 +23,13 @@ public class FriendsUser implements User {
 
     private String friendsSet;
     private String onlineSet;
-    private String lastLogout;
+    private String lastSeen;
 
     @Override
     public void init() {
         friendsSet = getFriendsSetName();
         onlineSet = getOnlineSetName();
-        lastLogout = getLastLogoutName();
+        lastSeen = getLastSeenName();
     }
 
     public String getFriendsSetName() {
@@ -40,7 +40,7 @@ public class FriendsUser implements User {
         return prefix + uuid.toString() + ".online";
     }
 
-    public String getLastLogoutName() {
+    public String getLastSeenName() {
         return prefix + uuid.toString() + ".lastseen";
     }
 
@@ -48,6 +48,7 @@ public class FriendsUser implements User {
     public void login() {
         db.addOnlineUser(this);
         try (Jedis jedis = FriendsDatabase.getResource()) {
+            jedis.set(lastSeen, String.format("%d", System.currentTimeMillis()));
             Set<User> intersection = new HashSet<>();
             Set<String> tmp = jedis.sinter(friendsSet, FriendsDatabase.getPrefix() +
                     FriendsDatabase.getOnlineKey());
@@ -69,7 +70,7 @@ public class FriendsUser implements User {
             ActionDispatcher.getInstance().dispatchAction(Action.LOGOUT, friend, this);
         }
         try (Jedis jedis = FriendsDatabase.getResource()) {
-            jedis.set(lastLogout, String.format("%d", System.currentTimeMillis()));
+            jedis.set(lastSeen, String.format("%d", System.currentTimeMillis()));
             jedis.del(onlineSet);
         }
     }
@@ -144,9 +145,9 @@ public class FriendsUser implements User {
     }
 
     @Override
-    public long getLastLogout() {
+    public long getLastSeen() {
         try (Jedis jedis = FriendsDatabase.getResource()) {
-            return Long.parseLong(jedis.get(lastLogout));
+            return Long.parseLong(jedis.get(lastSeen));
         }
     }
 
