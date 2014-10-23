@@ -5,9 +5,7 @@ import me.vemacs.friends.messaging.Action;
 import me.vemacs.friends.messaging.ActionDispatcher;
 import redis.clients.jedis.Jedis;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @EqualsAndHashCode
 public class FriendsUser implements User {
@@ -48,7 +46,7 @@ public class FriendsUser implements User {
     public void login() {
         db.addOnlineUser(this);
         try (Jedis jedis = FriendsDatabase.getResource()) {
-            jedis.set(lastSeen, String.format("%d", System.currentTimeMillis()));
+            jedis.set(lastSeen, Long.toString(System.currentTimeMillis()));
             Set<User> intersection = new HashSet<>();
             Set<String> tmp = jedis.sinter(friendsSet, FriendsDatabase.getPrefix() +
                     FriendsDatabase.getOnlineKey());
@@ -70,17 +68,24 @@ public class FriendsUser implements User {
             ActionDispatcher.getInstance().dispatchAction(Action.LOGOUT, friend, this);
         }
         try (Jedis jedis = FriendsDatabase.getResource()) {
-            jedis.set(lastSeen, String.format("%d", System.currentTimeMillis()));
+            jedis.set(lastSeen, Long.toString(System.currentTimeMillis()));
             jedis.del(onlineSet);
         }
     }
 
     @Override
     public Set<User> getFriends() {
-        Set<User> friends = new HashSet<>();
+        Set<User> friends = new LinkedHashSet<>();
         try (Jedis jedis = FriendsDatabase.getResource()) {
-            for (String str : jedis.smembers(friendsSet))
-                friends.add(new FriendsUser(UUID.fromString(str)));
+            friends.addAll(getOnlineFriends());
+            Map<Long, User> tmpMap = new TreeMap<>(Collections.reverseOrder());
+            for (String str : jedis.smembers(friendsSet)) {
+                User tmpUser = new FriendsUser(UUID.fromString(str));
+                if (!friends.contains(tmpUser))
+                    tmpMap.put(tmpUser.getLastSeen(), tmpUser);
+            }
+            for (User u : tmpMap.values())
+                friends.add(u);
         }
         return friends;
     }
@@ -147,7 +152,9 @@ public class FriendsUser implements User {
     @Override
     public long getLastSeen() {
         try (Jedis jedis = FriendsDatabase.getResource()) {
-            return Long.parseLong(jedis.get(lastSeen));
+            String tmp = jedis.get(lastSeen);
+            if (tmp == null) return System.currentTimeMillis();
+            return Long.parseLong(tmp);
         }
     }
 
