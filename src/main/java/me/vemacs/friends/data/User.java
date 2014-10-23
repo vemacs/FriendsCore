@@ -26,5 +26,7 @@ public interface User {
 
     public abstract boolean isOnline();
 
+    public abstract long getLastLogout();
+
     public abstract UUID getUuid();
 }

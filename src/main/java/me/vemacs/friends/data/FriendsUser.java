@@ -1,7 +1,6 @@
 package me.vemacs.friends.data;
 
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import me.vemacs.friends.messaging.Action;
 import me.vemacs.friends.messaging.ActionDispatcher;
 import redis.clients.jedis.Jedis;
@@ -24,11 +23,13 @@ public class FriendsUser implements User {
 
     private String friendsSet;
     private String onlineSet;
+    private String lastLogout;
 
     @Override
     public void init() {
         friendsSet = getFriendsSetName();
         onlineSet = getOnlineSetName();
+        lastLogout = getLastLogoutName();
     }
 
     public String getFriendsSetName() {
@@ -37,6 +38,10 @@ public class FriendsUser implements User {
 
     public String getOnlineSetName() {
         return prefix + uuid.toString() + ".online";
+    }
+
+    public String getLastLogoutName() {
+        return prefix + uuid.toString() + ".lastseen";
     }
 
     @Override
@@ -64,6 +69,7 @@ public class FriendsUser implements User {
             ActionDispatcher.getInstance().dispatchAction(Action.LOGOUT, friend, this);
         }
         try (Jedis jedis = FriendsDatabase.getResource()) {
+            jedis.set(lastLogout, String.format("%d", System.currentTimeMillis()));
             jedis.del(onlineSet);
         }
     }
@@ -135,6 +141,13 @@ public class FriendsUser implements User {
     @Override
     public boolean isOnline() {
         return db.isUserOnline(this);
+    }
+
+    @Override
+    public long getLastLogout() {
+        try (Jedis jedis = FriendsDatabase.getResource()) {
+            return Long.parseLong(jedis.get(lastLogout));
+        }
     }
 
     @Override
