@@ -3,6 +3,7 @@ package me.vemacs.friends.data;
 import lombok.EqualsAndHashCode;
 import me.vemacs.friends.messaging.Action;
 import me.vemacs.friends.messaging.ActionDispatcher;
+import me.vemacs.friends.messaging.Message;
 import redis.clients.jedis.Jedis;
 
 import java.util.*;
@@ -55,7 +56,7 @@ public class FriendsUser implements User {
             for (User friend : intersection) {
                 addOnlineFriend(friend);
                 friend.addOnlineFriend(this);
-                ActionDispatcher.getInstance().dispatchAction(Action.LOGIN, friend, this);
+                ActionDispatcher.getInstance().dispatchAction(new Message(Action.LOGIN, friend.getUuid(), uuid, null));
             }
         }
     }
@@ -65,7 +66,7 @@ public class FriendsUser implements User {
         db.removeOnlineUser(this);
         for (User friend : getOnlineFriends()) {
             friend.removeOnlineFriend(this);
-            ActionDispatcher.getInstance().dispatchAction(Action.LOGOUT, friend, this);
+            ActionDispatcher.getInstance().dispatchAction(new Message(Action.LOGOUT, friend.getUuid(), uuid, null));
         }
         try (Jedis jedis = FriendsDatabase.getResource()) {
             jedis.set(lastSeen, Long.toString(System.currentTimeMillis()));
@@ -74,19 +75,22 @@ public class FriendsUser implements User {
     }
 
     @Override
-    public Map<Boolean, User> getFriends() {
-        Map<Boolean, User> friends = new LinkedHashMap<>();
+    public Map<User, Boolean> getFriends() {
+        Map<User, Boolean> friends = new LinkedHashMap<>();
         try (Jedis jedis = FriendsDatabase.getResource()) {
             for (User u : getOnlineFriends())
-                friends.put(true, u);
+                friends.put(u, true);
+
             Map<Long, User> tmpMap = new TreeMap<>(Collections.reverseOrder());
             for (String str : jedis.smembers(friendsSet)) {
                 User tmpUser = new FriendsUser(UUID.fromString(str));
-                if (!friends.containsValue(tmpUser))
+                if (!friends.containsKey(tmpUser))
                     tmpMap.put(tmpUser.getLastSeen(), tmpUser);
             }
-            for (User u : tmpMap.values())
-                friends.put(false, u);
+
+            for (User user : tmpMap.values()) {
+                friends.put(user, false);
+            }
         }
         return friends;
     }
@@ -108,7 +112,7 @@ public class FriendsUser implements User {
         }
         friend.addFriend(this);
         addOnlineFriend(friend);
-        ActionDispatcher.getInstance().dispatchAction(Action.FRIEND_ADD, this, friend);
+        ActionDispatcher.getInstance().dispatchAction(new Message(Action.FRIEND_ADD, this.uuid, friend.getUuid(), null));
     }
 
     @Override
@@ -119,7 +123,7 @@ public class FriendsUser implements User {
         }
         friend.removeFriend(this);
         removeOnlineFriend(friend);
-        ActionDispatcher.getInstance().dispatchAction(Action.FRIEND_REMOVE, this, friend);
+        ActionDispatcher.getInstance().dispatchAction(new Message(Action.FRIEND_REMOVE, this.uuid, friend.getUuid(), null));
     }
 
     @Override
@@ -127,7 +131,7 @@ public class FriendsUser implements User {
         try (Jedis jedis = FriendsDatabase.getResource()) {
             jedis.sadd(onlineSet, friend.getUuid().toString());
         }
-        ActionDispatcher.getInstance().dispatchAction(Action.ONLINE_ADD, this, friend);
+        ActionDispatcher.getInstance().dispatchAction(new Message(Action.ONLINE_ADD, this.uuid, friend.getUuid(), null));
     }
 
     @Override
@@ -135,7 +139,7 @@ public class FriendsUser implements User {
         try (Jedis jedis = FriendsDatabase.getResource()) {
             jedis.srem(onlineSet, friend.getUuid().toString());
         }
-        ActionDispatcher.getInstance().dispatchAction(Action.ONLINE_REMOVE, this, friend);
+        ActionDispatcher.getInstance().dispatchAction(new Message(Action.ONLINE_REMOVE, this.uuid, friend.getUuid(), null));
     }
 
     @Override
@@ -154,7 +158,7 @@ public class FriendsUser implements User {
     public long getLastSeen() {
         try (Jedis jedis = FriendsDatabase.getResource()) {
             String tmp = jedis.get(lastSeen);
-            if (tmp == null) return System.currentTimeMillis();
+            if (tmp == null) return 0;
             return Long.parseLong(tmp);
         }
     }

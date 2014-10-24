@@ -11,7 +11,7 @@ public interface User {
 
     public abstract void logout();
 
-    public abstract Map<Boolean, User> getFriends();
+    public abstract Map<User, Boolean> getFriends();
 
     public abstract Set<User> getOnlineFriends();
 

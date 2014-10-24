@@ -1,16 +1,14 @@
 package me.vemacs.friends.messaging;
 
+import com.google.gson.Gson;
 import lombok.Getter;
 import me.vemacs.friends.data.FriendsDatabase;
-import me.vemacs.friends.data.FriendsUser;
-import me.vemacs.friends.data.User;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ActionDispatcher {
@@ -27,7 +25,9 @@ public class ActionDispatcher {
     }
 
     @Getter
-    private static final String channelPrefix = "fl-";
+    private static final String channel = "friendscore";
+
+    private static final Gson gson = new Gson();
 
     public void init() {
         final JedisPubSub pubSubHandler = new JedisPubSub() {
@@ -61,32 +61,28 @@ public class ActionDispatcher {
 
             }
         };
-        for (final Action action : Action.values()) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    FriendsDatabase.getResource().subscribe(pubSubHandler, channelPrefix + action.name().toLowerCase());
-                }
-            }).start();
-        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                FriendsDatabase.getResource().subscribe(pubSubHandler, channel);
+            }
+        }).start();
     }
 
     // hurrdurr no multimap
     private Map<Action, List<ActionHandler>> registeredHandlers = new ConcurrentHashMap<>();
 
-    public void dispatchAction(Action action, User recipient, User subject) {
+    public void dispatchAction(Message message) {
         try (Jedis jedis = FriendsDatabase.getResource()) {
-            jedis.publish(channelPrefix + action.name().toLowerCase(),
-                    recipient.getUuid().toString() + "," + subject.getUuid().toString());
+            jedis.publish(channel, gson.toJson(message));
         }
     }
 
     public void handle(String channel, String message) {
-        Action action = Action.valueOf(channel.substring(channelPrefix.length()).toUpperCase());
-        String[] parts = message.split(",");
-        if (registeredHandlers.containsKey(action))
-            for (ActionHandler handler : registeredHandlers.get(action))
-                handler.handle(new FriendsUser(UUID.fromString(parts[0])), new FriendsUser(UUID.fromString(parts[1])));
+        Message message1 = gson.fromJson(message, Message.class);
+        if (registeredHandlers.containsKey(message1.getAction()))
+            for (ActionHandler handler : registeredHandlers.get(message1.getAction()))
+                handler.handle(message1);
     }
 
     public void register(ActionHandler handler) {
