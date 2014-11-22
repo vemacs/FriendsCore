@@ -1,5 +1,6 @@
 package me.vemacs.friends.data;
 
+import com.google.gson.JsonObject;
 import lombok.EqualsAndHashCode;
 import me.vemacs.friends.messaging.Action;
 import me.vemacs.friends.messaging.ActionDispatcher;
@@ -79,11 +80,17 @@ public class FriendsUser implements User {
 
     @Override
     public void setServer(String server) {
+        String oldServer = server;
         this.server = server;
         try (Jedis jedis = FriendsDatabase.getResource()) {
             jedis.hset(serverHash, this.uuid.toString(), server);
         }
-        ActionDispatcher.getInstance().dispatchAction(new Message(Action.CHANGE_SERVER, uuid, uuid, null));
+
+        JsonObject payload = new JsonObject();
+        payload.addProperty("old", oldServer);
+        payload.addProperty("new", server);
+
+        ActionDispatcher.getInstance().dispatchAction(new Message(Action.CHANGE_SERVER, uuid, uuid, payload));
     }
 
     @Override
