@@ -80,7 +80,7 @@ public class FriendsUser implements User {
 
     @Override
     public void setServer(String server) {
-        String oldServer = server;
+        String oldServer = this.server;
         this.server = server;
         try (Jedis jedis = FriendsDatabase.getResource()) {
             jedis.hset(serverHash, this.uuid.toString(), server);
