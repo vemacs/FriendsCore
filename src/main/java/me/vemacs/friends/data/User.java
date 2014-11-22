@@ -5,29 +5,31 @@ import java.util.Set;
 import java.util.UUID;
 
 public interface User {
-    public abstract void init();
+    void init();
 
-    public abstract void login();
+    void login();
 
-    public abstract void logout();
+    void logout();
+    
+    void setServer(String server);
 
-    public abstract Map<User, Boolean> getFriends();
+    Map<User, Boolean> getFriends();
 
-    public abstract Set<User> getOnlineFriends();
+    Set<User> getOnlineFriends();
 
-    public abstract void addFriend(User user);
+    void addFriend(User user);
 
-    public abstract void removeFriend(User user);
+    void removeFriend(User user);
 
-    public abstract void addOnlineFriend(User user);
+    void addOnlineFriend(User user);
 
-    public abstract void removeOnlineFriend(User user);
+    void removeOnlineFriend(User user);
 
-    public abstract boolean hasFriend(User user);
+    boolean hasFriend(User user);
 
-    public abstract boolean isOnline();
+    boolean isOnline();
 
-    public abstract long getLastSeen();
+    long getLastSeen();
 
-    public abstract UUID getUuid();
+    UUID getUuid();
 }

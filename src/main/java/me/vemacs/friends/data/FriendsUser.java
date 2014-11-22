@@ -18,11 +18,13 @@ public class FriendsUser implements User {
     }
 
     private FriendsDatabase db = FriendsDatabase.getInstance();
-    private final String prefix = FriendsDatabase.getPrefix() + "user.";
+    private static final String prefix = FriendsDatabase.getPrefix() + "user.";
 
     private String friendsSet;
     private String onlineSet;
     private String lastSeen;
+    private static final String serverHash = FriendsDatabase.getPrefix() + "userservers";
+    private String server;
 
     @Override
     public void init() {
@@ -70,8 +72,18 @@ public class FriendsUser implements User {
         }
         try (Jedis jedis = FriendsDatabase.getResource()) {
             jedis.set(lastSeen, Long.toString(System.currentTimeMillis()));
+            jedis.hdel(serverHash, uuid.toString());
             jedis.del(onlineSet);
         }
+    }
+
+    @Override
+    public void setServer(String server) {
+        this.server = server;
+        try (Jedis jedis = FriendsDatabase.getResource()) {
+            jedis.hset(serverHash, this.uuid.toString(), server);
+        }
+        ActionDispatcher.getInstance().dispatchAction(new Message(Action.CHANGE_SERVER, uuid, uuid, null));
     }
 
     @Override
