@@ -9,7 +9,7 @@ import redis.clients.jedis.Jedis;
 
 import java.util.*;
 
-@EqualsAndHashCode
+@EqualsAndHashCode(of = {"uuid"})
 public class FriendsUser implements User {
     private UUID uuid;
 
