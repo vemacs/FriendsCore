@@ -69,8 +69,6 @@ public class ActionDispatcher {
         }).start();
     }
 
-    // hurrdurr no multimap
-    private Map<Action, List<ActionHandler>> registeredHandlers = new ConcurrentHashMap<>();
 
     public void dispatchAction(Message message) {
         try (Jedis jedis = FriendsDatabase.getResource()) {
@@ -80,20 +78,6 @@ public class ActionDispatcher {
 
     public void handle(String channel, String message) {
         Message message1 = gson.fromJson(message, Message.class);
-        if (registeredHandlers.containsKey(message1.getAction()))
-            for (ActionHandler handler : registeredHandlers.get(message1.getAction()))
-                handler.handle(message1);
-    }
-
-    public void register(ActionHandler handler) {
-        if (!registeredHandlers.containsKey(handler.getAction()))
-            registeredHandlers.put(handler.getAction(), new ArrayList<ActionHandler>());
-        registeredHandlers.get(handler.getAction()).add(handler);
-    }
-
-    public void unregister(ActionHandler handler) {
-        if (!registeredHandlers.containsKey(handler.getAction()))
-            registeredHandlers.put(handler.getAction(), new ArrayList<ActionHandler>());
-        registeredHandlers.get(handler.getAction()).remove(handler);
+        FriendsHandlerList.getInstance().handle(message1.getAction(), message1);
     }
 }

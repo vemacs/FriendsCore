@@ -1,7 +1,12 @@
 package me.vemacs.friends.messaging;
 
-public interface ActionHandler {
-    Action getAction();
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-    void handle(Message payload);
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface ActionHandler {
+    public Action action();
 }
