@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class FriendsHandlerList {
     private static FriendsHandlerList instance;
@@ -29,20 +30,15 @@ public class FriendsHandlerList {
             if (action == null) continue;
             if (!Arrays.equals(m.getParameterTypes(), validParam)) continue;
             List<Method> methodList = methodMap.get(action);
-            if (methodList == null) methodList = new ArrayList<>();
+            if (methodList == null) methodMap.put(action, methodList = new CopyOnWriteArrayList<>());
             methodList.add(m);
-            methodMap.put(action, methodList);
         }
         return methodMap;
     }
 
     public Action getActionForMethod(Method method) {
-        Annotation[] annotations = method.getDeclaredAnnotations();
-        for (Annotation annotation : annotations) {
-            if (annotation instanceof ActionHandler) {
-                return ((ActionHandler) annotation).action();
-            }
-        }
+        if (method.isAnnotationPresent(ActionHandler.class))
+            return method.getAnnotation(ActionHandler.class).action();
         return null;
     }
 
