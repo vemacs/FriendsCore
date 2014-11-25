@@ -33,7 +33,11 @@ public class ActionDispatcher {
         final JedisPubSub pubSubHandler = new JedisPubSub() {
             @Override
             public void onMessage(String channel, String message) {
-                handle(channel, message);
+                try {
+                    handle(channel, message);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override
