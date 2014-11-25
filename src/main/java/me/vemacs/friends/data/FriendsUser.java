@@ -90,8 +90,7 @@ public class FriendsUser implements User {
         payload.addProperty("old", oldServer);
         payload.addProperty("new", server);
 
-        for (User user : getOnlineFriends())
-        {
+        for (User user : getOnlineFriends()) {
             ActionDispatcher.getInstance().dispatchAction(new Message(Action.CHANGE_SERVER, uuid, user.getUuid(), payload));
         }
     }

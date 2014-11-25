@@ -6,11 +6,6 @@ import me.vemacs.friends.data.FriendsDatabase;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 public class ActionDispatcher {
     private static ActionDispatcher instance;
 

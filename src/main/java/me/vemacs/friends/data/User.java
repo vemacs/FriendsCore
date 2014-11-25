@@ -10,7 +10,7 @@ public interface User {
     void login();
 
     void logout();
-    
+
     void setServer(String server);
 
     Map<User, Boolean> getFriends();
