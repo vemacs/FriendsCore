@@ -57,6 +57,7 @@ public class FriendsHandlerList {
     public void handle(Action action, Message payload) {
         for (Map.Entry<ActionListener, Map<Action, List<Method>>> entry : registeredListeners.entrySet()) {
             ActionListener al = entry.getKey();
+            if (!entry.getValue().containsKey(action)) continue;
             for (Method m : entry.getValue().get(action)) {
                 try {
                     m.invoke(al, payload);
