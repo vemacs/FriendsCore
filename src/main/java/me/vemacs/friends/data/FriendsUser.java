@@ -59,7 +59,7 @@ public class FriendsUser implements User {
             for (User friend : intersection) {
                 addOnlineFriend(friend);
                 friend.addOnlineFriend(this);
-                ActionDispatcher.getInstance().dispatchAction(new Message(Action.LOGIN, friend.getUuid(), uuid, null));
+                ActionDispatcher.getInstance().dispatchAction(new Message(Action.LOGIN, uuid, friend.getUuid(), null));
             }
         }
     }
@@ -69,7 +69,7 @@ public class FriendsUser implements User {
         db.removeOnlineUser(this);
         for (User friend : getOnlineFriends()) {
             friend.removeOnlineFriend(this);
-            ActionDispatcher.getInstance().dispatchAction(new Message(Action.LOGOUT, friend.getUuid(), uuid, null));
+            ActionDispatcher.getInstance().dispatchAction(new Message(Action.LOGOUT, uuid, friend.getUuid(), null));
         }
         try (Jedis jedis = FriendsDatabase.getResource()) {
             jedis.set(lastSeen, Long.toString(System.currentTimeMillis()));
