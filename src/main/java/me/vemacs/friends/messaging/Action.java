@@ -6,6 +6,7 @@ public enum Action {
     CHANGE_SERVER,
     REQUEST_SEND,
     REQUEST_REJECT,
+    REQUEST_CANCEL,
     FRIEND_ADD,
     FRIEND_REMOVE,
     ONLINE_ADD,
