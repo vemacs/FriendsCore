@@ -2,6 +2,7 @@ package me.vemacs.friends.data;
 
 import com.google.gson.JsonObject;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import me.vemacs.friends.messaging.Action;
 import me.vemacs.friends.messaging.ActionDispatcher;
 import me.vemacs.friends.messaging.Message;
@@ -25,6 +26,7 @@ public class FriendsUser implements User {
     private String onlineSet;
     private String lastSeen;
     private static final String serverHash = FriendsDatabase.getPrefix() + "userservers";
+    @Getter
     private String server;
 
     @Override
