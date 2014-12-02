@@ -47,6 +47,20 @@ public class FriendsUser implements User {
     public String getLastSeenName() {
         return prefix + uuid.toString() + ".lastseen";
     }
+    
+    public void setIgnoreRequests(boolean ignore) {
+        try (Jedis jedis = FriendsDatabase.getResource()) {
+            jedis.set(prefix + uuid.toString() + ".ignore", ignore.toString());
+        }
+    }
+    
+    public boolean getIgnoreRequests() {
+        boolean ignore = false;
+        try (Jedis jedis = FriendsDatabase.getResource()) {
+            ignore = jedis.get(prefix + uuid.toString() + ".ignore", ignore.toString()).equals("true");
+        }
+        return ignore;
+    }
 
     @Override
     public void login() {
