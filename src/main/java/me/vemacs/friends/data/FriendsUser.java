@@ -50,14 +50,14 @@ public class FriendsUser implements User {
     
     public void setIgnoreRequests(boolean ignore) {
         try (Jedis jedis = FriendsDatabase.getResource()) {
-            jedis.set(prefix + uuid.toString() + ".ignore", ignore.toString());
+            jedis.set(prefix + uuid.toString() + ".ignore", Boolean.toString(ignore).toLowerCase());
         }
     }
     
     public boolean getIgnoreRequests() {
-        boolean ignore = false;
+        boolean ignore;
         try (Jedis jedis = FriendsDatabase.getResource()) {
-            ignore = jedis.get(prefix + uuid.toString() + ".ignore", ignore.toString()).equals("true");
+            ignore = jedis.get(prefix + uuid.toString() + ".ignore").equalsIgnoreCase("true");
         }
         return ignore;
     }
