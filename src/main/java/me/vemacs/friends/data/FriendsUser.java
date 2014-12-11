@@ -58,6 +58,9 @@ public class FriendsUser implements User {
         boolean ignore;
         try (Jedis jedis = FriendsDatabase.getResource()) {
             ignore = jedis.get(prefix + uuid.toString() + ".ignore").equalsIgnoreCase("true");
+        } catch (Exception e) {
+            setIgnoreRequests(false);
+            return false;
         }
         return ignore;
     }
