@@ -13,6 +13,8 @@ public interface User {
 
     void setServer(String server);
 
+    String getServer();
+
     Map<User, Boolean> getFriends();
 
     Set<User> getOnlineFriends();

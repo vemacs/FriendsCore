@@ -26,8 +26,6 @@ public class FriendsUser implements User {
     private String onlineSet;
     private String lastSeen;
     private static final String serverHash = FriendsDatabase.getPrefix() + "userservers";
-    @Getter
-    private String server;
 
     @Override
     public void init() {
@@ -99,8 +97,7 @@ public class FriendsUser implements User {
 
     @Override
     public void setServer(String server) {
-        String oldServer = this.server;
-        this.server = server;
+        String oldServer = getServer();
         try (Jedis jedis = FriendsDatabase.getResource()) {
             jedis.hset(serverHash, this.uuid.toString(), server);
         }
@@ -111,6 +108,13 @@ public class FriendsUser implements User {
 
         for (User user : getOnlineFriends()) {
             ActionDispatcher.getInstance().dispatchAction(new Message(Action.CHANGE_SERVER, uuid, user.getUuid(), payload));
+        }
+    }
+
+    @Override
+    public String getServer()  {
+        try (Jedis jedis = FriendsDatabase.getResource()) {
+            return jedis.hget(serverHash, this.uuid.toString());
         }
     }
 
